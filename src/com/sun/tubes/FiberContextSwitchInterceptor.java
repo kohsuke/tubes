@@ -16,7 +16,7 @@ import java.security.PrivilegedAction;
 
 
 /**
- * Interception for {@link com.sun.xml.ws.api.pipe.Fiber} context switch.
+ * Interception for {@link Fiber<T>} context switch.
  *
  * <p>
  * Even though pipeline runs asynchronously, sometimes it's desirable

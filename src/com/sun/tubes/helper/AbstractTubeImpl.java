@@ -22,6 +22,9 @@ public abstract class AbstractTubeImpl<T>
 
     /**
      * Copy constructor.
+     *
+     * @param that tube being copied
+     * @param cloner cloner to use to prevent looping in graph
      */
     protected AbstractTubeImpl( AbstractTubeImpl<T> that, TubeCloner cloner) {
         cloner.add(that,this);
@@ -64,6 +67,10 @@ public abstract class AbstractTubeImpl<T>
 
     /**
      * "Dual stack" compatibility mechanism.
+     *
+     * @param p  the data object to be processed by the tube
+     *
+     * @return resulting data object after processing
      */
     public T process(T p) {
         return ((Fiber<T>)Fiber.current()).runSync(this,p);

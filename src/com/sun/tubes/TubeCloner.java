@@ -19,7 +19,7 @@ import java.util.HashMap;
  * Clones the whole pipeline.
  *
  * <p>
- * Since {@link com.sun.xml.ws.api.pipe.Tube}s may form an arbitrary directed graph, someone needs
+ * Since {@link Tube}s may form an arbitrary directed graph, someone needs
  * to keep track of isomorphism for a clone to happen correctly. This class
  * serves that role.
  *

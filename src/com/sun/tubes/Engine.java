@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
- * Collection of {@link com.sun.xml.ws.api.pipe.Fiber}s.
+ * Collection of {@link Fiber}s.
  * Owns an {@link Executor} to run them.
  *
  * @author Kohsuke Kawaguchi
