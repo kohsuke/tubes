@@ -1,24 +1,95 @@
-/**
- * Copyright Notice
- *
- * Copyright (c) 2000-2004, Cape Clear Software.
- * All Rights Reserved
- *
- * This software is protected by copyright and other intellectual
- * property rights and by international treaties. Any unauthorised
- * reproduction or distribution of this software or any portion
- * thereof is strictly prohibited.
- */
 package com.sun.tubes;
+
+import java.text.SimpleDateFormat;
 
 import javax.annotation.PreDestroy;
 
 import com.sun.istack.NotNull;
+import com.sun.tubes.helper.AbstractTubeImpl;
+import com.sun.tubes.helper.AbstractFilterTubeImpl;
 
 
 /**
+ * Data processing element.
+ *
+ * <h2>What is a {@link Tube}?</h2>
+ * <p>
+ * {@link Tube} is a basic processing unit that represents a single link in
+ * a data processing chain. Mutliple tubes are often put together in
+ * a line (it needs not one dimensional &mdash; more later), and act on
+ * a specific data type in a sequential fashion.
+ *
+ * <p>
+ * {@link Tube}s run asynchronously. That is, there is no guarantee that
+ * {@link #processRequest} and {@link #processResponse} run
+ * in the same thread, nor is there any guarantee that this tube and next
+ * tube run in the same thread. Furthermore, one thread may be used to
+ * run multiple tubelines in turn (just like a real CPU runs multiple
+ * threads in turn.)
+ *
+ *
+ * <h2>Tube Lifecycle</h2>
+ * A tubeline may be expensive to set up, so once it's created it should be reused.
+ * A tubeline is not reentrant; one tubeline can beused to process one request/response
+ * at at time. The same tubeline instance may serve multiple request/response,
+ * if one comes after another and they don't overlap.
+ * <p>
+ * Where a need arises to process multiple requests concurrently, a tubeline
+ * must be cloned through {@link TubeCloner}. Caching strategies may be used to
+ * provide a set of tubeline instance that can be reused to reduce the need to
+ * clone tubelines.
+ * <p>
+ * Before a tubeline owner dies, it may invoke {@link #preDestroy()} on the last
+ * remaining tubeline.
+ *
+ * <h2>Tube and state</h2>
+ * <p>
+ * The lifecycle of tubelines is designed to allow a {@link Tube} to store various
+ * state in easily accessible fashion.
+ *
+ * <h3>Per-packet state</h3>
+ * <p>
+ * We refer to the data type of the tube as the "packet" in the following description.
+ * <p>
+ * Any information that changes from a packet to packet should be
+ * stored in the packet (this is data type specific).
+ *
+ * <h3>Per-thread state</h3>
+ * <p>
+ * Any expensive-to-create objects that are non-reentrant can be stored
+ * either in instance variables of a {@link Tube}, or a static {@link ThreadLocal}.
+ *
+ * <p>
+ * The first approach works, because {@link Tube} is
+ * non reentrant. When a tube is copied, new instances should be allocated
+ * so that two {@link Tube} instances don't share thread-unsafe resources.
+ *
+ * <p>
+ * Similarly the second approach works, since {@link ThreadLocal} guarantees
+ * that each thread gets its own private copy.
+ *
+ * <p>
+ * The former is faster to access, and you need not worry about clean up.
+ * On the other hand, because there can be many more concurrent requests
+ * than # of threads, you may end up holding onto more resources than necessary.
+ *
+ * <p>
+ * This includes state like canonicalizers, JAXB unmarshallers,
+ * {@link SimpleDateFormat}, etc.
+ *
+ *
+ * <h3>VM-wide state</h3>
+ * <p>
+ * <tt>static</tt> is always there for you to use.
+ *
+ *
+ *
+ * @see AbstractTubeImpl
+ * @see AbstractFilterTubeImpl
+ *
+ * @author Kohsuke Kawaguchi
+ * @author Jitendra Kotamraju
  * @author Pete Hendry
- * @version $Id$
  */
 public interface Tube<T> {
 
