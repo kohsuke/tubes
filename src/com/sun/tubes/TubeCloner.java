@@ -1,14 +1,3 @@
-/**
- * Copyright Notice
- *
- * Copyright (c) 2000-2004, Cape Clear Software.
- * All Rights Reserved
- *
- * This software is protected by copyright and other intellectual
- * property rights and by international treaties. Any unauthorised
- * reproduction or distribution of this software or any portion
- * thereof is strictly prohibited.
- */
 package com.sun.tubes;
 
 import java.util.Map;
@@ -27,7 +16,7 @@ import java.util.HashMap;
  */
 public class TubeCloner {
     // Pipe to pipe, or tube to tube
-    protected final Map<Object,Object> master2copy = new HashMap<Object,Object>();
+    protected final Map<Tube<?>,Tube<?>> master2copy = new HashMap<Tube<?>,Tube<?>>();
 
     protected TubeCloner() {
     }
@@ -44,7 +33,7 @@ public class TubeCloner {
      * @return
      *      The cloned pipeline. Always non-null.
      */
-    public static Tube clone(Tube p) {
+    public static <P extends Tube> P clone(P p) {
         final TubeCloner cloner = new TubeCloner();
 
         return cloner.copy(p);
@@ -73,11 +62,14 @@ public class TubeCloner {
      *      The cloned tube. Always non-null.
      */
     public <P extends Tube> P copy(P t) {
-        Tube r = (Tube)master2copy.get(t);
+        Tube<?> r = master2copy.get(t);
         if(r==null) {
             r = t.copy(this);
             // the pipe must puts its copy to the map by itself
-            assert master2copy.get(t)==r : "the tube must call the add(...) method to register itself before start copying other pipes, but "+t +" hasn't done so";
+            assert master2copy.get(t) == r :
+                "the tube must call the add(...) method to register itself before start copying other pipes, but "
+                + t
+                + " hasn't done so";
         }
         return (P)r;
     }
@@ -91,6 +83,9 @@ public class TubeCloner {
      * it's particularly important to call this method
      * before you start copying the pipes you refer to,
      * or else there's a chance of inifinite loop.
+     *
+     * @param original the tube being copied
+     * @param copy the result of the copy
      */
     public void add(Tube original, Tube copy) {
         assert !master2copy.containsKey(original);
