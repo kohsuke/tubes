@@ -48,7 +48,7 @@ public class Engine<T> {
      *
      * @return new Fiber<T>
      */
-    public Fiber createFiber() {
+    public Fiber<T> createFiber() {
         return new Fiber<T>(this);
     }
 
