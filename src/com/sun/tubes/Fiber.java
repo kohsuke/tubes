@@ -77,7 +77,6 @@ public class Fiber<T>
      * to be invoked on the way back.
      */
     private List<Tube<T>> conts = new ArrayList<Tube<T>>(16);
-    private int contsSize;
 
     /**
      * If this field is non-null, the next instruction to execute is
@@ -402,12 +401,10 @@ public class Fiber<T>
     public synchronized @NotNull T runSync(@NotNull Tube<T> tubeline, @NotNull T request) {
         // save the current continuation, so that we return runSync() without executing them.
         final List<Tube<T>> oldCont = conts;
-        final int oldContSize = contsSize;
         final boolean oldSynchronous = synchronous;
 
-        if(oldContSize>0) {
+        if(conts.size()>0) {
             conts = new ArrayList<Tube<T>>(16);
-            contsSize=0;
         }
 
         try {
@@ -427,7 +424,6 @@ public class Fiber<T>
             return this.packet;
         } finally {
             conts = oldCont;
-            contsSize = oldContSize;
             synchronous = oldSynchronous;
             if(interrupted) {
                 Thread.currentThread().interrupt();
@@ -439,7 +435,7 @@ public class Fiber<T>
     }
 
     private synchronized void completionCheck() {
-        if(contsSize==0) {
+        if(conts.size()==0) {
             if(isTraceEnabled())
                 LOGGER.fine(getName()+" completed");
             completed = true;
@@ -569,7 +565,7 @@ public class Fiber<T>
                     NextAction<T> na;
                     Tube<T> last;
                     if(throwable!=null) {
-                        if(contsSize==0) {
+                        if(conts.size()==0) {
                             // nothing else to execute. we are done.
                             return null;
                         }
@@ -584,7 +580,7 @@ public class Fiber<T>
                             na = next.processRequest(packet);
                             last = next;
                         } else {
-                            if(contsSize==0) {
+                            if(conts.size()==0) {
                                 // nothing else to execute. we are done.
                                 return null;
                             }
