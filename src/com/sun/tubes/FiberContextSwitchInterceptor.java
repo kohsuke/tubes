@@ -1,14 +1,3 @@
-/**
- * Copyright Notice
- *
- * Copyright (c) 2000-2004, Cape Clear Software.
- * All Rights Reserved
- *
- * This software is protected by copyright and other intellectual
- * property rights and by international treaties. Any unauthorised
- * reproduction or distribution of this software or any portion
- * thereof is strictly prohibited.
- */
 package com.sun.tubes;
 
 import java.security.AccessController;
