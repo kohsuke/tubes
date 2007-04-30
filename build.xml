@@ -83,4 +83,8 @@
             </batchtest>
         </junit>
     </target>
+
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
 </project>
